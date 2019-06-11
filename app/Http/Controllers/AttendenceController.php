@@ -226,16 +226,20 @@ class AttendenceController extends Controller
        if ($count != 0 ){
 
            $allEmployees    = DB::table('employee_job_infos')->select('employee_official_id')->orderBy('id','asc')->get();
-           $attendances     = DB::table('employee_attendences')->groupBy('employee_official_id')->whereMonth('attendence_date',$currentMonth)->whereYear('attendence_date',$currentYear)->select('employee_official_id',DB::raw('count(*) as totalAttendance'))->orderBy('id','asc')->get();
-//           return DB::table('employee_attedences')
-//               ->leftJoin('employee_job_infos','employee_attendences.employee_official_id','=','employee_job_infos.employee_official_id')
-//               ->whereMonth('employee_attendences.attendence_date',$currentMonth)->whereYear('employee_attendences.attendence_date',$currentYear)
-//               ->get();
-
+           $allEmployees    = DB::table('employee_job_infos')->select('employee_official_id')->orderBy('id','asc')->get();
+           $attendances     = DB::table('employee_attendences')->groupBy('employee_official_id')->whereMonth('attendence_date',$currentMonth)->whereYear('attendence_date',$currentYear)->select('employee_official_id')->orderBy('id','asc')->get();
+           $nullAttendances = DB::table('employee_job_infos')->leftJoin('employee_attendences','employee_job_infos.employee_official_id','=','employee_attendences.employee_official_id')->select('employee_job_infos.employee_official_id')->whereNull('employee_attendences.employee_official_id')->get();
            $absents         = DB::table('absent_employees')->groupBy('employee_official_id')->whereMonth('absent_date',$currentMonth)->whereYear('absent_date',$currentYear)->select('employee_official_id',DB::raw('count(*) as totalAbsent'))->get();
            $nullAbsents     = DB::table('employee_job_infos')->leftJoin('absent_employees','employee_job_infos.employee_official_id','=','absent_employees.employee_official_id')->select('employee_job_infos.employee_official_id')->whereNull('absent_employees.employee_official_id')->get();
            $leaves          = DB::table('leave_employees')->groupBy('employee_official_id')->whereMonth('leave_starting_date',$currentMonth)->whereYear('leave_starting_date',$currentYear)->select('employee_official_id', DB::raw('SUM(intervals) as intervals'))->get();
            $nullLeaves      = DB::table('employee_job_infos')->leftJoin('leave_employees','employee_job_infos.employee_official_id','=','leave_employees.employee_official_id')->select('employee_job_infos.employee_official_id')->whereNull('leave_employees.employee_official_id')->get();
+
+          return DB::table('employee_job_infos')
+               ->leftJoin('employee_attendences','employee_job_infos.employee_official_id','=','employee_attendences.employee_official_id')
+               ->select('employee_job_infos.*','employee_attendences.*')
+              ->whereMonth('employee_attendences.attendence_date',$currentMonth)->whereYear('employee_attendences.attendence_date',$currentYear)
+              // ->where('employee_job_infos.employee_official_id','!=','employee_attendences.employee_official_id')
+               ->get();
 
            return view('admin.attendence.all-employees-current-month-attendance-report',[
                'allEmployees'    => $allEmployees,

@@ -38,7 +38,7 @@
 
                                 <?php $i = 1?>
                                 @foreach($allEmployees as $allEmployee )
-
+                                    <?php $check = 1 ?>
                                     <tr>
                                         <td>{{ $i }}</td>
                                         <td>{{ $allEmployee->employee_official_id }}</td>
@@ -46,15 +46,19 @@
                                         <td>
                                             @foreach($attendances as $attendance )
                                                 @if($allEmployee->employee_official_id == $attendance->employee_official_id )
+                                                    <?php $check++ ;?>
                                                     <?php
                                                     $totalAttendance = $attendance->totalAttendance;
                                                     $attendEmployee = $attendance->employee_official_id;
                                                     ?>
                                                     {{ $attendance->totalAttendance }}
                                                     <?php $zero = 0 ?>
-
+                                                    @else
+                                                    <?php $check-- ?>
+                                                @endif
+                                                @if($check == 1 )
+                                                {{ $zero }}
                                         </td>
-
                                         @endif
                                         @endforeach
 
